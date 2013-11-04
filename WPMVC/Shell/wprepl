@@ -1,0 +1,14 @@
+#!/usr/bin/php
+<?php
+
+define('SDS', DIRECTORY_SEPARATOR);
+$path = isset($argv[1]) ? $argv[1] : dirname(__FILE__).SDS.'..'.SDS.'..'.SDS.'..'.SDS.'..'.SDS.'..'.SDS;
+if (!file_exists($path.'wp-blog-header.php'))
+{
+	echo "Could not find $path"."wp-blog-header.php \n";
+	exit;
+}
+require_once($path.'wp-blog-header.php');
+require_once('autoload.php');
+$boris = new Boris\Boris('wprepl> ');
+$boris->start();
