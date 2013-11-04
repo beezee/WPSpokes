@@ -10,6 +10,13 @@ define('DS', DIRECTORY_SEPARATOR);
 
 require_once(dirname(__FILE__).DS.'Autoloader.php'); 
 require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'autoload.php');
+if (defined('ENVIRONMENT') and ENVIRONMENT === 'development')
+{
+	error_reporting(E_ALL);
+	ini_set('display_errors', '1');
+	require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'php_error.php');
+	\php_error\reportErrors(array('wordpress' => true));
+}
 
 $framework_loader = new SplClassLoader('WPMVC', dirname(__FILE__)); 
 $framework_loader->register(); 
@@ -19,7 +26,7 @@ use \Illuminate\Database\Capsule\Manager as Capsule;
 use \Illuminate\Events\Dispatcher;
 use \Illuminate\Container\Container;
 
-class WPMVC 
+class WPMVC extends \WPMVC\Framework\Component
 { 
 	private static $_instance; 
 	private $_router; 
@@ -29,6 +36,9 @@ class WPMVC
 	{
 		$this->_router = new Router();	
 		$this->load_database();
+		$this->register_vendor_autoloader('Axelarge');
+		$this->register_vendor_autoloader('Valitron');
+		\Valitron\Validator::langDir(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'Valitron'.DS.'lang');
 		add_action('plugins_loaded', array($this, 'trigger_loaded'));
 		add_action('template_include', array($this, 'dispatch_request'));
 	}
@@ -42,6 +52,11 @@ class WPMVC
 	{
 		return self::$_instance
 			?: self::$_instance = new WPMVC();
+	}
+
+	private function register_vendor_autoloader($namespace)
+	{
+		$this->register_autoloader($namespace, dirname(__FILE__).DS.'WPMVC'.DS.'vendor');
 	}
 
 	public function register_autoloader($namespace, $path)
@@ -61,7 +76,7 @@ class WPMVC
 			'password' => DB_PASSWORD,
 			'charset' => DB_CHARSET,
 			'collation' => 'utf8_unicode_ci',
-			'prefix' => $table_prefix));
+			'prefix' => ''));
 		$capsule->setEventDispatcher(new Dispatcher(new Container()));
 		$capsule->setAsGlobal();
 		$capsule->bootEloquent();
@@ -80,7 +95,9 @@ class WPMVC
 	private function parse_controller_action_pair_from_route($route)
 	{
 		$r = explode('#', $route->getTarget());
-		$r[0] .= 'Controller';
+		$controller_class = $r[0].'Controller';
+		$controller = new $controller_class();
+		$r[0] = $controller;
 		return $r;
 	}
 
@@ -88,11 +105,17 @@ class WPMVC
 	{
 		if (!$route = $this->get_router()->matchCurrentRequest())
 			return $default_response;
+		list($controller, $action) = $this->parse_controller_action_pair_from_route($route);
+		$controller->before();
 		call_user_func_array(
-			$this->parse_controller_action_pair_from_route($route), $route->getParameters());
+			array($controller, $action), $route->getParameters());
+		$controller->after();
 		return;
-		var_dump($route->getTarget());
-		var_dump($route->getParameters());
+	}
+
+	public function get_base_dir()
+	{
+		return dirname(__FILE__).DS.'WPMVC';
 	}
 }
 
