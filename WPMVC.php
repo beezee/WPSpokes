@@ -10,6 +10,7 @@ define('DS', DIRECTORY_SEPARATOR);
 
 require_once(dirname(__FILE__).DS.'Autoloader.php'); 
 require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'autoload.php');
+require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'HtmlPurifier'.DS.'HTMLPurifier.standalone.php');
 if (defined('ENVIRONMENT') and ENVIRONMENT === 'development')
 {
 	error_reporting(E_ALL);
@@ -31,14 +32,14 @@ class WPMVC extends \WPMVC\Framework\Component
 	private static $_instance; 
 	private $_router; 
 	private $_autoloaders = array(); 
+	private $_purifier;
 
 	private function __construct() 
 	{
 		$this->_router = new Router();	
 		$this->load_database();
 		$this->register_vendor_autoloader('Axelarge');
-		$this->register_vendor_autoloader('Valitron');
-		\Valitron\Validator::langDir(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'Valitron'.DS.'lang');
+		$this->set_up_validator();
 		add_action('plugins_loaded', array($this, 'trigger_loaded'));
 		add_action('template_include', array($this, 'dispatch_request'));
 	}
@@ -63,6 +64,16 @@ class WPMVC extends \WPMVC\Framework\Component
 	{
 		$this->_autoloaders[$namespace] = new SplClassLoader($namespace, $path);
 		$this->_autoloaders[$namespace]->register();
+	}
+
+	private function set_up_validator()
+	{
+		$this->register_vendor_autoloader('Valitron');
+		\Valitron\Validator::langDir(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'Valitron'.DS.'lang');
+		\Valitron\Validator::addRule('sanitize', 
+			array(new \WPMVC\Framework\Validators\PurifyValidator(), 'run'), '');
+		\Valitron\Validator::addRule('strip_tags',
+			array(new \WPMVC\Framework\Validators\StripTagsValidator(), 'run'), '');
 	}
 
 	public function load_database()
@@ -90,6 +101,14 @@ class WPMVC extends \WPMVC\Framework\Component
 	public function get_router()
 	{
 		return $this->_router;
+	}
+
+	public function get_purifier()
+	{
+		if ($this->_purifier)
+			return $this->_purifier;
+		$config = HTMLPurifier_Config::createDefault();
+		$this->_purifier = new HTMLPurifier($config);
 	}
 
 	private function parse_controller_action_pair_from_route($route)
