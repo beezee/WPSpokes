@@ -8,6 +8,13 @@ class Model extends \Illuminate\Database\Eloquent\Model
 	private $_roles=array();
 	private $_errors=array();
 
+	public static function boot()
+	{
+		parent::boot();
+		$class = get_called_class();
+		$class::observe(new \WPMVC\Framework\ModelObserver());
+	}
+
 	public function add_rules_to(\Valitron\Validator $validator)
 	{
 		return $validator;
@@ -17,9 +24,15 @@ class Model extends \Illuminate\Database\Eloquent\Model
 	{
 		$validator = new \Valitron\Validator($this->toArray());
 		$this->add_rules_to($validator);
-		if ($validator->validate())
-			return true;
+		$this->call_method_on_roles('add_rules_to', array($validator));
+		if (!$this->call_method_on_roles('validating'))
+			return false;
+		$valid = $validator->validate();
 		$this->_errors = $validator->errors();
+		if (!$this->call_method_on_roles('validated'))
+			return false;
+		if ($valid)
+			return true;
 		return false;
 	}
 
@@ -58,7 +71,7 @@ class Model extends \Illuminate\Database\Eloquent\Model
 					return $this->$setter($value);
 		elseif(is_array($this->_roles))
 			foreach($this->_roles as $object)
-				if($object->enabled() && (property_exists($object,$name) || $object->can_set_property($name)))
+				if($object->enabled && (property_exists($object,$name) || $object->can_set_property($name)))
 					return $object->$name=$value;
 		return parent::__set($name, $value);
 	}
@@ -127,6 +140,16 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		$this->_roles = array();
 	}
 
+	public function call_method_on_roles($method, $arguments=array())
+	{
+		$return = true;
+		foreach($this->roles as $role)
+			if (method_exists($role, $method))
+				if (!call_user_func_array(array($role, $method), $arguments))
+					$return = false;
+		return $return;
+	}
+
 	public function add_role($name, $role)
 	{
 		if(!($role instanceof \WPMVC\Framework\Role))
@@ -137,7 +160,7 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
 	public function remove_role($name)
 	{
-		if(isset($this->_roles[$name]))
+		if(!isset($this->_roles[$name]))
 			return;
 		$this->_roles[$name]->remove_from($this);
 		$role=$this->_roles[$name];

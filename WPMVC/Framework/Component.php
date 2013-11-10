@@ -29,7 +29,7 @@ class Component
 					return $this->$setter($value);
 		elseif(is_array($this->_roles))
 			foreach($this->_roles as $object)
-				if($object->enabled() && (property_exists($object,$name) || $object->can_set_property($name)))
+				if($object->enabled && (property_exists($object,$name) || $object->can_set_property($name)))
 					return $object->$name=$value;
 		if(method_exists($this,'get_'.$name))
 						throw new Exception('Property "'.get_class($this).'.'.$name.'" is read only.');
@@ -112,7 +112,7 @@ class Component
 
 	public function remove_role($name)
 	{
-		if(isset($this->_roles[$name]))
+		if(!isset($this->_roles[$name]))
 			return;
 		$this->_roles[$name]->remove_from($this);
 		$role=$this->_roles[$name];
