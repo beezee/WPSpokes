@@ -1,0 +1,16 @@
+#!/usr/bin/php
+<?php
+define('tDS', DIRECTORY_SEPARATOR);
+$_SERVER['SERVER_NAME'] = 'localhost';
+require_once('EnhanceTestFramework.php');
+require_once(dirname(__FILE__).tDS.'..'.tDS.'..'.tDS.'..'.tDS.'..'.tDS.'..'.tDS.'wp-config.php');
+
+$path = (isset($argv) and is_array($argv) and array_key_exists(1, $argv))
+    ? dirname(__FILE__).tDS.$argv[1] : dirname(__FILE__);
+
+$recursive = (isset($argv) and is_array($argv) and array_key_exists(2, $argv))
+    ? $argv[2] : true;
+\Enhance\Core::discoverTests($path, $recursive);
+// Run the tests
+error_reporting(E_ERROR);
+\Enhance\Core::runTests();
