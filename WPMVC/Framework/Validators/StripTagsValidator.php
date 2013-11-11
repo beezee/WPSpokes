@@ -7,10 +7,10 @@ class StripTagsValidator extends \WPMVC\Framework\Validator
 
 	public function validate()
 	{
-		if (!$this->hasModelWithAttribute)
+		if (!$this->has_model_with_attribute)
 			return true;
-		$this->params['model']->{$this->attribute}
-			= strip_tags($this->params['model']->{$this->attribute});
+		$this->params[0]->{$this->field}
+			= strip_tags($this->value);
 		return true;
 	}
 }

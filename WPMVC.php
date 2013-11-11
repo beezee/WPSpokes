@@ -108,7 +108,7 @@ class WPMVC extends \WPMVC\Framework\Component
 		if ($this->_purifier)
 			return $this->_purifier;
 		$config = HTMLPurifier_Config::createDefault();
-		$this->_purifier = new HTMLPurifier($config);
+		return $this->_purifier = new HTMLPurifier($config);
 	}
 
 	private function parse_controller_action_pair_from_route($route)

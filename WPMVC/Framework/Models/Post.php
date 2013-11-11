@@ -19,8 +19,8 @@ class Post extends \WPMVC\Framework\Model
 		$validator->rule('required', array('post_status', 'post_name', 'post_type',  'post_title'));
 		$validator->rule('in', 'post_status', array('publish', 'draft', 'pending', 'future', 'trash'));
 		$validator->rule('slug', 'post_name');
-		$validator->rule('sanitize', array('post_content', 'post_excerpt'));
-		$validator->rule('strip_tags', 'post_title');
+		$validator->rule('sanitize', array('post_content', 'post_excerpt'), $this);
+		$validator->rule('strip_tags', 'post_title', $this);
 		$validator->rule('dateFormat',
 			array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt'),
 				'Y-m-d H:i:s');
