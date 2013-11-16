@@ -7,6 +7,17 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
 	private $_roles=array();
 	private $_errors=array();
+	protected $classes_inheriting_from_table = array();
+	protected $table_inheritance_attribute = false;
+	public $timestamps=false;
+
+	public function __construct($attributes=array())
+	{
+		parent::__construct($attributes);
+		if ($this->inherits_from_table)
+			$this->setAttribute($this->table_inheritance_attribute, 
+				$this->table_inheritance_type);
+	}
 
 	public static function boot()
 	{
@@ -18,6 +29,44 @@ class Model extends \Illuminate\Database\Eloquent\Model
 	public function add_rules_to(\Valitron\Validator $validator)
 	{
 		return $validator;
+	}
+
+	public function get_inherits_from_table()
+	{
+		return array_key_exists(get_called_class(), $this->classes_inheriting_from_table);
+	}
+
+	public function get_table_inheritance_type_value()
+	{
+		return $this->classes_inheriting_from_table[get_called_class()];
+	}
+
+	public function get_table_inheritance_type_class_from_value($value)
+	{
+		return array_search($value, $this->classes_inheriting_from_table);
+	}
+
+	public function newQuery($excludeDeleted=true)
+	{
+		$builder = parent::newQuery($excludeDeleted);
+		if (!$this->inherits_from_table)
+			return $builder;
+		$builder->where($this->table_inheritance->attribute, 
+			'=', $this->table_inheritance_type_value);
+		return $builder;
+	}
+
+	public function newFromBuilder($attributes=array())
+	{
+		if (!$this->table_inheritance_attribute)	
+			return parent::newFromBuilder($attributes);
+		if (!$class = $this->get_table_inheritance_type_class_from_value(
+				$attributes[$this->table_inheritance_attribute]))
+			return parent::newFromBuilder($attributes);
+		$instance = new $class();
+		$instance->exists = true;
+		$instance->setRawAttributes((array) $attributes, true);
+		return $instance;
 	}
 
 	public function validate()

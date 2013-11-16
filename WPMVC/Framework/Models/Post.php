@@ -4,7 +4,6 @@ namespace WPMVC\Framework\Models;
 
 class Post extends \WPMVC\Framework\Model
 {
-	public $timestamps=false;
 	protected $primaryKey = 'ID';
 
 	public function __construct($attributes=array())
