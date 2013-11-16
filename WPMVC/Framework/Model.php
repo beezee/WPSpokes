@@ -7,9 +7,10 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
 	private $_roles=array();
 	private $_errors=array();
-	protected $classes_inheriting_from_table = array();
 	protected $table_inheritance_attribute = false;
 	public $timestamps=false;
+
+	public static $classes_inheriting_from_table = array();
 
 	public function __construct($attributes=array())
 	{
@@ -33,17 +34,20 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
 	public function get_inherits_from_table()
 	{
-		return array_key_exists(get_called_class(), $this->classes_inheriting_from_table);
+		$class = get_called_class();
+		return array_key_exists(get_called_class(), $class::$classes_inheriting_from_table);
 	}
 
 	public function get_table_inheritance_type_value()
 	{
-		return $this->classes_inheriting_from_table[get_called_class()];
+		$class = get_called_class();
+		return $class::$classes_inheriting_from_table[get_called_class()];
 	}
 
 	public function get_table_inheritance_type_class_from_value($value)
 	{
-		return array_search($value, $this->classes_inheriting_from_table);
+		$class = get_called_class();
+		return array_search($value, $class::$classes_inheriting_from_table);
 	}
 
 	public function newQuery($excludeDeleted=true)

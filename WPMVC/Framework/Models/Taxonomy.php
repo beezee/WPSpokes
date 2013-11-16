@@ -5,10 +5,11 @@ namespace WPMVC\Framework\Models;
 class Taxonomy extends \WPMVC\Framework\Model
 {
 	protected $primaryKey='term_taxonomy_id';
-	protected $classes_inheriting_from_table 
+	protected $table_inheritance_attribute = 'taxonomy';
+
+	public static $classes_inheriting_from_table 
 		= array('\WPMVC\Framework\Models\Tag' => 'post_tag', 
 			'\WPMVC\Framework\Models\Category' => 'category');
-	protected $table_inheritance_attribute = 'taxonomy';
 
 	public function __construct($attributes=array())
 	{
