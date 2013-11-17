@@ -11,6 +11,7 @@ define('DS', DIRECTORY_SEPARATOR);
 require_once(dirname(__FILE__).DS.'Autoloader.php'); 
 require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'autoload.php');
 require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'HtmlPurifier'.DS.'HTMLPurifier.standalone.php');
+require_once(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'_.php');
 if (defined('ENVIRONMENT') and ENVIRONMENT === 'development')
 {
 	error_reporting(E_ALL);
@@ -30,15 +31,25 @@ use \Illuminate\Container\Container;
 class WPMVC extends \WPMVC\Framework\Component
 { 
 	private static $_instance; 
+	private static $_is_being_accessed_through_factory = false;
 	private $_router; 
 	private $_autoloaders = array(); 
 	private $_purifier;
 
-	private function __construct() 
+	public function __construct()
+	{
+		if (!WPMVC::is_being_accessed_through_factory())
+			throw new Exception('WPMVC::__construct cannot be called directly. Use WPMVC::instance');
+		$this->initialize();
+		return parent::__construct();
+	}	
+
+	private function initialize() 
 	{
 		$this->_router = new Router();	
 		$this->load_database();
 		$this->register_vendor_autoloader('Axelarge');
+		$this->register_vendor_autoloader('Stringy');
 		$this->set_up_validator();
 		add_action('plugins_loaded', array($this, 'trigger_loaded'));
 		add_action('template_include', array($this, 'dispatch_request'));
@@ -49,10 +60,18 @@ class WPMVC extends \WPMVC\Framework\Component
 		do_action('wpmvc_loaded');
 	}	
 
+	public static function is_being_accessed_through_factory()
+	{
+		return self::$_is_being_accessed_through_factory;
+	}
+
 	public static function instance()
 	{
-		return self::$_instance
+		self::$_is_being_accessed_through_factory = true;
+		$instance = self::$_instance
 			?: self::$_instance = new WPMVC();
+		self::$_is_being_accessed_through_factory = false;
+		return $instance;
 	}
 
 	private function register_vendor_autoloader($namespace)

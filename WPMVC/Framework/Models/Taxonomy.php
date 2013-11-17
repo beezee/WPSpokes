@@ -30,13 +30,10 @@ class Taxonomy extends \WPMVC\Framework\Model
 		return $this->belongsTo('\WPMVC\Framework\Models\Term', 'term_id');
 	}
 
-	public function get_name()
-	{
-		return $this->term->name;
-	}
 
-	public function get_slug()
+	public function roles()
 	{
-		return $this->term->slug;
+		return array(
+			'term_interface' => array('\WPMVC\Framework\Roles\TermInterface'));
 	}
 }

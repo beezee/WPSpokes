@@ -31,4 +31,34 @@ class Post extends \WPMVC\Framework\Model
 			array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt'),
 				'Y-m-d H:i:s');
 	}
+
+	public function get_is_being_published()
+	{
+		return $this->isDirty('post_status')
+			and $this->post_status === 'publish';
+	}
+
+	public function update_post_dates()
+	{
+		$this->post_modified = date('Y-m-d H:i:s');
+		$this->post_modified_gmt = gmdate('Y-m-d H:i:s');
+		if (!$this->is_being_published)
+			return;
+		$this->post_date = $this->post_modified;
+		$this->post_date_gmt = $this->post_modified_gmt;
+	}
+
+	public function validate()
+	{
+		$this->update_post_dates();
+		return parent::validate();
+	}
+
+	public function roles()
+	{
+		return array(
+			'slug_generator' => array('\WPMVC\Framework\Roles\SlugGenerator',
+								'slug_source_attribute' => 'post_title',
+								'slug_target_attribute' => 'post_name'));
+	}
 }

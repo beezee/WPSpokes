@@ -15,6 +15,8 @@ class Model extends \Illuminate\Database\Eloquent\Model
 	public function __construct($attributes=array())
 	{
 		parent::__construct($attributes);
+		foreach($this->roles() as $name => $role)
+			$this->add_role($name, Component::create($role));
 		if ($this->inherits_from_table)
 			$this->setAttribute($this->table_inheritance_attribute, 
 				$this->table_inheritance_type);
@@ -75,11 +77,11 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
 	public function validate()
 	{
+		if (!$this->call_method_on_roles('validating'))
+			return false;
 		$validator = new \Valitron\Validator($this->toArray());
 		$this->add_rules_to($validator);
 		$this->call_method_on_roles('add_rules_to', array($validator));
-		if (!$this->call_method_on_roles('validating'))
-			return false;
 		$valid = $validator->validate();
 		$this->_errors = $validator->errors();
 		if (!$this->call_method_on_roles('validated'))
@@ -178,6 +180,11 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		return parent::__call($name, $parameters);
 	}
 
+	public function roles()
+	{
+		return array();
+	}
+
 	public function get_role($role)
 	{
 		return isset($this->_roles[$role]) ? $this->_roles[$role] : null;
@@ -234,5 +241,23 @@ class Model extends \Illuminate\Database\Eloquent\Model
 	public function can_set_property($name)
 	{
 					return method_exists($this,'set_'.$name);
+	}
+
+	public function value($attribute, $default='', $model=false)
+	{
+		if (!$model)
+			$model = $this;
+		if(!is_scalar($attribute) and $attribute!==null)
+			return call_user_func($attribute,$model);
+		foreach(explode('.',$attribute) as $name)
+		{
+		    if(is_object($model) && isset($model->$name))
+			$model=$model->$name;
+		    elseif(is_array($model) && isset($model[$name]))
+			$model=$model[$name];
+		    else
+			return $default;
+		}
+		return $model;
 	}
 }

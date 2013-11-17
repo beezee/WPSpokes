@@ -8,6 +8,21 @@ class Component
 {
 	private $_roles=array();
 
+	public static function create($args)
+	{
+		$class = array_shift($args);
+		$instance = new $class();
+		foreach($args as $property => $value)
+			$instance->$property = $value;
+		return $instance;
+	}
+
+	public function __construct()
+	{
+		foreach($this->roles() as $name => $role)
+			$this->add_role($name, Component::create($role));
+	}
+
 	public function __get($name)
 	{
 		$getter='get_'.$name;
@@ -87,6 +102,11 @@ class Component
 		throw new Exception(get_class($this).' and its behaviors do not have a method or closure named "'.$name.'".');
 	}
 
+	public function roles()
+	{
+		return array();
+	}
+
 	public function get_role($role)
 	{
 		return isset($this->_roles[$role]) ? $this->_roles[$role] : null;
@@ -127,11 +147,29 @@ class Component
 
 	public function can_get_property($name)
 	{
-					return method_exists($this,'get_'.$name);
+		return method_exists($this,'get_'.$name);
 	}
 
 	public function can_set_property($name)
 	{
-					return method_exists($this,'set_'.$name);
+		return method_exists($this,'set_'.$name);
+	}
+
+	public function value($attribute, $default='', $model=false)
+	{
+		if (!$model)
+			$model = $this;
+		if(!is_scalar($attribute) and $attribute!==null)
+			return call_user_func($attribute,$model);
+		foreach(explode('.',$attribute) as $name)
+		{
+		    if(is_object($model) && isset($model->$name))
+				$model=$model->$name;
+		    elseif(is_array($model) && isset($model[$name]))
+				$model=$model[$name];
+		    else
+				return $default;
+		}
+		return $model;
 	}
 }
