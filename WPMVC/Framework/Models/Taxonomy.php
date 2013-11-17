@@ -18,6 +18,13 @@ class Taxonomy extends \WPMVC\Framework\Model
 		return parent::__construct($attributes);
 	}
 
+	public function posts()
+	{
+		global $wpdb;
+		return $this->belongsToMany('\WPMVC\Framework\Models\Post',
+			$wpdb->prefix.'term_relationships', 'term_taxonomy_id', 'object_id');
+	}
+
 	public function term()
 	{
 		return $this->belongsTo('\WPMVC\Framework\Models\Term', 'term_id');

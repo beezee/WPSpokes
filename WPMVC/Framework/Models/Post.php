@@ -12,6 +12,13 @@ class Post extends \WPMVC\Framework\Model
 		$this->table = $wpdb->prefix.'posts';
 		return parent::__construct($attributes);
 	}
+
+	public function taxonomies()
+	{
+		global $wpdb;
+		return $this->belongsToMany('\WPMVC\Framework\Models\Taxonomy', 
+			$wpdb->prefix.'term_relationships', 'object_id', 'term_taxonomy_id');
+	}
 	
 	public function add_rules_to($validator)
 	{
