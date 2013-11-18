@@ -1,5 +1,7 @@
 <?php
 
+use \WPMVC\Framework\Models\Post;
+
 class PostTest extends \Enhance\TestFixture
 {
 	public function testPostRequiredFields()
@@ -64,26 +66,36 @@ class PostTest extends \Enhance\TestFixture
 		\Enhance\Assert::areIdentical('Title', $p->post_title);
 	}
 
-	public function testPostDateFieldsAreValidated()
+	public function testPostDateFieldsAreUpdated()
 	{
 		$p = new \WPMVC\Framework\Models\Post();
-		foreach(array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt') as $property)
+		foreach(array('post_modified', 'post_modified_gmt') as $property)
 		{
-			$p->$property = date('Y-m-d');
+			$p->$property = date('Y-m-d', strtotime('yesterday'));
+			\Enhance\Assert::isTrue($p->$property == date('Y-m-d', strtotime('yesterday')));
 			$p->validate();
-			\Enhance\Assert::areIdentical(
-				ucwords(str_replace('_', ' ', $property))
-					.' must be date with format \'Y-m-d H:i:s\'', 
-					$p->errors[$property][0]);
-			$p->$property = 'not a date at all';
-			$p->validate();
-			\Enhance\Assert::areIdentical(
-				ucwords(str_replace('_', ' ', $property))
-					.' must be date with format \'Y-m-d H:i:s\'', 
-					$p->errors[$property][0]);
-			$p->$property = date('Y-m-d H:i:s');
-			$p->validate();
-			\Enhance\Assert::isFalse(array_key_exists($property, $p->errors));
+			\Enhance\Assert::isTrue($p->$property > date('Y-m-d', strtotime('yesterday')));
 		}
+		foreach(array('post_date', 'post_date_gmt') as $property)
+		{
+			$p->$property = '';
+			\Enhance\Assert::isTrue($p->$property == '');
+			$p->validate();
+			\Enhance\Assert::isTrue($p->$property > date('Y-m-d', strtotime('yesterday')));
+		}
+	}
+
+	public function testPostGeneratesUniqueSlug()
+	{
+		$p = new Post();
+		$p->post_title = 'test'.microtime();
+		$p->post_type = 'post';
+		$p->post_status = 'draft';
+		$p->save();
+		$p2 = new Post();
+		$p2->post_title = $p->post_title;
+		$p2->validate();
+		$p->delete();
+		\Enhance\Assert::isTrue(preg_match('/^'.$p->post_name.'-([\d]+)$/', $p2->post_name) > 0);
 	}
 }

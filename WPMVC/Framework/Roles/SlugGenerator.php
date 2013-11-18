@@ -43,7 +43,8 @@ class SlugGenerator extends \WPMVC\Framework\Role
 
 	public function get_needs_slug_update()
 	{
-		return trim($this->owner->value($this->slug_target_attribute)) == '';
+		return trim($this->owner->value($this->slug_source_attribute)) != ''
+			and trim($this->owner->value($this->slug_target_attribute)) == '';
 	}
 
 	public function validating()
