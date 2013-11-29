@@ -89,10 +89,6 @@ class WPMVC extends \WPMVC\Framework\Component
 	{
 		$this->register_vendor_autoloader('Valitron');
 		\Valitron\Validator::langDir(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'Valitron'.DS.'lang');
-		\Valitron\Validator::addRule('sanitize', 
-			array(new \WPMVC\Framework\Validators\PurifyValidator(), 'run'), '');
-		\Valitron\Validator::addRule('strip_tags',
-			array(new \WPMVC\Framework\Validators\StripTagsValidator(), 'run'), '');
 	}
 
 	public function load_database()

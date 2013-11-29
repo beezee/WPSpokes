@@ -98,4 +98,15 @@ class PostTest extends \Enhance\TestFixture
 		$p->delete();
 		\Enhance\Assert::isTrue(preg_match('/^'.$p->post_name.'-([\d]+)$/', $p2->post_name) > 0);
 	}
+
+	public function testPostGeneratesSlugOnlyOnce()
+	{
+		$p = new Post();
+		$p->post_title = 'testing';
+		$p->validate();
+		$slug = $p->post_name;
+		$p->post_title = 'new testing';
+		$p->validate();
+		\Enhance\Assert::areIdentical($slug, $p->post_name);
+	}
 }

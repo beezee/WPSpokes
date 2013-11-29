@@ -75,8 +75,21 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		return $instance;
 	}
 
+    public function add_filters_to($filter_chain)
+    {
+        return;
+    }
+
+    public function filter()
+    {
+        $filter_chain = new \WPMVC\Framework\FilterChain();
+        $this->add_filters_to($filter_chain);
+        $filter_chain->apply_to($this);
+    }
+
 	public function validate()
 	{
+        $this->filter();
 		if (!$this->call_method_on_roles('validating'))
 			return false;
 		$validator = new \Valitron\Validator($this->toArray());

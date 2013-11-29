@@ -13,11 +13,15 @@ class Term extends \WPMVC\Framework\Model
 		return parent::__construct($attributes);
 	}
 
+    public function add_filters_to($filter_chain)
+    {
+        $filter_chain->filter('name', new \WPMVC\Framework\Filters\StripTags());
+    }
+
 	public function add_rules_to($validator)
 	{
 		$validator->rule('required', array('name', 'slug'));
 		$validator->rule('slug', 'slug');
-		$validator->rule('strip_tags', 'name', $this);
 	}
 
 	public function roles()
