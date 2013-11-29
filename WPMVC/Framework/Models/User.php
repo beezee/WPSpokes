@@ -58,7 +58,8 @@ class User extends \WPMVC\Framework\Model
 								'slug_source_attribute' => 'display_name',
 								'slug_target_attribute' => 'user_nicename'),
             'meta_owner' => array('\WPMVC\Framework\Roles\MetaOwner',
-                                'relationship' => 'usermeta'),
+                                'relationship' => 'usermeta',
+                                'meta_class_name' => '\WPMVC\Framework\Models\UserMeta'),
         );
 	}
 }
