@@ -35,7 +35,8 @@ class Post extends \WPMVC\Framework\Model
 
 	public function add_rules_to($validator)
 	{
-		$validator->rule('required', array('post_status', 'post_name', 'post_type',  'post_title'));
+		$validator->rule('required', 
+            array('post_status', 'post_author', 'post_name', 'post_type',  'post_title'));
 		$validator->rule('in', 'post_status', array('publish', 'draft', 'pending', 'future', 'trash'));
 		$validator->rule('slug', 'post_name');
         $validator->rule('exists', 'post_author', array('class_name' => '\WPMVC\Framework\Models\User'))
