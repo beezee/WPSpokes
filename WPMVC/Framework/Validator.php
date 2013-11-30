@@ -8,17 +8,11 @@ class Validator extends \WPMVC\Framework\Component
 	public $value;
 	public $params;
 
-	public function get_has_model_with_attribute()
-	{
-		return (isset($this->params[0]) 
-			and is_a($this->params[0], '\WPMVC\Framework\Model'));
-	}
-	
 	public function run($field, $value, $params=array())
 	{
 		$this->field = $field;
 		$this->value = $value;
-		$this->params = $params;
+		$this->params = $params[0];
 		return $this->validate();
 	}
 

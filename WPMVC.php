@@ -89,6 +89,8 @@ class WPMVC extends \WPMVC\Framework\Component
 	{
 		$this->register_vendor_autoloader('Valitron');
 		\Valitron\Validator::langDir(dirname(__FILE__).DS.'WPMVC'.DS.'vendor'.DS.'Valitron'.DS.'lang');
+        \Valitron\Validator::addRule('exists', array(new \WPMVC\Framework\Validators\Exists(), 'run'), 
+                    'Must exist');
 	}
 
 	public function load_database()

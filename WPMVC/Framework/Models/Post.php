@@ -13,6 +13,11 @@ class Post extends \WPMVC\Framework\Model
 		return parent::__construct($attributes);
 	}
 
+    public function author()
+    {
+        return $this->belongsTo('\WPMVC\Framework\Models\User', 'post_author');
+    }
+
 	public function taxonomies()
 	{
 		global $wpdb;
@@ -33,6 +38,8 @@ class Post extends \WPMVC\Framework\Model
 		$validator->rule('required', array('post_status', 'post_name', 'post_type',  'post_title'));
 		$validator->rule('in', 'post_status', array('publish', 'draft', 'pending', 'future', 'trash'));
 		$validator->rule('slug', 'post_name');
+        $validator->rule('exists', 'post_author', array('class_name' => '\WPMVC\Framework\Models\User'))
+            ->message('Post Author must be an existing user');
 		$validator->rule('dateFormat',
 			array('post_date', 'post_date_gmt', 'post_modified', 'post_modified_gmt'),
 				'Y-m-d H:i:s');

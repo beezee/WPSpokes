@@ -10,14 +10,22 @@ class MetaOwner extends \WPMVC\Framework\Role
     public $relationship = 'general_meta';
     public $meta_class_name = 'GeneralMeta';
 
+    public function get_related_meta()
+    {
+        $meta = $this->owner->{$this->relationship};
+        return _::sortBy($meta, function($m){
+            return $m->pk * -1;
+        });
+    }
+
     public function get_meta()
     {
-        return new MetaWrapper($this->owner->{$this->relationship}, $this->owner);
+        return new MetaWrapper($this->related_meta, $this->owner);
     }
 
     public function get_all_meta()
     {
-        return new MetaArrayWrapper($this->owner->{$this->relationship}, $this->owner);
+        return new MetaArrayWrapper($this->related_meta, $this->owner);
     }
 
     public function add_meta($key, $value)
@@ -31,7 +39,7 @@ class MetaOwner extends \WPMVC\Framework\Role
 
     public function update_meta($key, $value)
     {
-        $wrapper = new RawMetaWrapper($this->owner->{$this->relationship}, $this->owner);
+        $wrapper = new RawMetaWrapper($this->related_meta, $this->owner);
         if (!$meta = $wrapper->$key)
             return $this->add_meta($key, $value);
         $meta->{$this->meta_value_attribute} = $value;
@@ -40,7 +48,7 @@ class MetaOwner extends \WPMVC\Framework\Role
 
     public function delete_meta($key, $value=false)
     {
-        $wrapper = new RawMetaArrayWrapper($this->owner->{$this->relationship}, $this->owner);
+        $wrapper = new RawMetaArrayWrapper($this->related_meta, $this->owner);
         $value_attribute = $this->meta_value_attribute;
         $matches = ($value)
             ? _::filter($wrapper->$key, function($m) use($value, $value_attribute){

@@ -118,6 +118,11 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		return $this->_errors;
 	}
 
+    public function get_pk()
+    {
+        return $this->{$this->primaryKey};
+    }
+
 	public function __get($name)
 	{
 		$getter='get_'.$name;
