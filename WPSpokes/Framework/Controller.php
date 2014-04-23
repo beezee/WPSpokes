@@ -58,14 +58,30 @@ class Controller extends Component
 		return \WPSpokes::instance()->base_dir.DS.'views'.$file_path;
 	}
 
+	public function render_partial($path, $arguments=array(), $return=false)
+	{
+		extract($arguments);
+		if ($return) ob_start();
+		include($this->resolve_view_path($path));
+		if ($return) return ob_get_clean();
+	}
+
 	public function render($path, $arguments=array())
 	{
 		extract($arguments);
-		ob_start();
-		include($this->resolve_view_path($path));
-		$content = ob_get_clean();
+		$content = $this->render_partial($path, $arguments, true);
 		include($this->resolve_view_path($this->layout));
 	}
+
+  public function set404()
+  {
+    global $wp_query;
+    header("HTTP/1.0 404 Not Found - Archive Empty");
+    header("Content-Type: text/html");
+    $wp_query->set_404();
+    require TEMPLATEPATH.'/404.php';
+    exit;
+  }
 
 	public function before()
 	{
