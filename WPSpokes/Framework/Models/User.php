@@ -19,7 +19,7 @@ class User extends \WPSpokes\Framework\Model
             new \WPSpokes\Framework\Filters\StripTags());
     }
 
-    public function add_rules_to($validator)
+    public function add_rules_to(\Valitron\Validator $validator)
     {
         $validator->rule('required',
             array('user_login', 'user_pass', 'user_email', 

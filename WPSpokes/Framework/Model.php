@@ -104,7 +104,7 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		return false;
 	}
 
-	public function save($options = array())
+	public function save(array $options = array())
 	{
 		if (isset($options['validate']) and !$options['validate'])
 			return parent::save($options);

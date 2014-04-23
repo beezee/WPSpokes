@@ -13,10 +13,10 @@ class Post extends \WPSpokes\Framework\Model
 		return parent::__construct($attributes);
 	}
 
-    public function author()
-    {
-        return $this->belongsTo('\WPSpokes\Framework\Models\User', 'post_author');
-    }
+  public function author()
+  {
+      return $this->belongsTo('\WPSpokes\Framework\Models\User', 'post_author');
+  }
 
 	public function taxonomies()
 	{
@@ -25,15 +25,15 @@ class Post extends \WPSpokes\Framework\Model
 			$wpdb->prefix.'term_relationships', 'object_id', 'term_taxonomy_id');
 	}
 	
-    public function add_filters_to($filter_chain)
-    {
-        $filter_chain->filter(array('post_content', 'post_excerpt'),
-            new \WPSpokes\Framework\Filters\Purify());
-        $filter_chain->filter('post_title', 
-            new \WPSpokes\Framework\Filters\StripTags());
-    }
+  public function add_filters_to($filter_chain)
+  {
+      $filter_chain->filter(array('post_content', 'post_excerpt'),
+          new \WPSpokes\Framework\Filters\Purify());
+      $filter_chain->filter('post_title', 
+          new \WPSpokes\Framework\Filters\StripTags());
+  }
 
-	public function add_rules_to($validator)
+	public function add_rules_to(\Valitron\Validator $validator)
 	{
 		$validator->rule('required', 
             array('post_status', 'post_author', 'post_name', 'post_type',  'post_title'));

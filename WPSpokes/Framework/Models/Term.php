@@ -18,7 +18,7 @@ class Term extends \WPSpokes\Framework\Model
         $filter_chain->filter('name', new \WPSpokes\Framework\Filters\StripTags());
     }
 
-	public function add_rules_to($validator)
+	public function add_rules_to(\Valitron\Validator $validator)
 	{
 		$validator->rule('required', array('name', 'slug'));
 		$validator->rule('slug', 'slug');
