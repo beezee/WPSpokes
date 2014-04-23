@@ -36,4 +36,9 @@ class Taxonomy extends \WPSpokes\Framework\Model
 		return array(
 			'term_interface' => array('\WPSpokes\Framework\Roles\TermInterface'));
 	}
+
+  public function newQuery($excludeDeleted = true)
+  {
+    return parent::newQuery($excludeDeleted)->with('term');
+  }
 }
