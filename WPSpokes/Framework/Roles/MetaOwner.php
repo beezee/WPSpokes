@@ -81,6 +81,12 @@ class MetaWrapper
             ? $match->{$owner->meta_value_attribute}
             : false;
     }
+
+    public function get_meta_keys()
+    {
+      $owner = $this->_owner;
+      return _::map($this->_meta, function($m) use($owner) { return $m->{$owner->meta_key_attribute}; });
+    }
                 
     public function __get($name)
     {
