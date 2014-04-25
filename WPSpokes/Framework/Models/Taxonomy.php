@@ -42,6 +42,21 @@ class Taxonomy extends \WPSpokes\Framework\Model
 		return parent::__construct($attributes);
 	}
 
+  public static function synchronize_counts()
+  {
+    global $wpdb;
+    $sql = 'update wp_term_taxonomy as tt 
+      left join (select term_taxonomy_id as tid, count(term_taxonomy_id) as real_count
+                  from wp_term_relationships as tr
+                  left join wp_posts as p on tr.object_id = p.ID
+                  where p.post_status = "publish"
+                  group by tid)
+        as rc 
+      on rc.tid = tt.term_taxonomy_id
+      set tt.count = rc.real_count';
+    $wpdb->query($sql);
+  }
+
 	public function posts()
 	{
 		global $wpdb;
