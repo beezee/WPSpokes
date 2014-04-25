@@ -80,4 +80,12 @@ class Taxonomy extends \WPSpokes\Framework\Model
   {
     return parent::newQuery($excludeDeleted)->with('term');
   }
+
+  public function toArray()
+  {
+    $r = parent::toArray();
+    foreach(array('name', 'slug') as $prop)
+      $r[$prop] = $this->$prop;
+    return $r;
+  }
 }
