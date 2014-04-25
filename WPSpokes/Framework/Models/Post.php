@@ -25,7 +25,17 @@ class Post extends \WPSpokes\Framework\Model
 		return $this->belongsToMany('\WPSpokes\Framework\Models\Taxonomy', 
 			$wpdb->prefix.'term_relationships', 'object_id', 'term_taxonomy_id');
 	}
+
+  public function get_tags()
+  {
+    return \_::filter($this->taxonomies, function($t) { return $t->taxonomy == 'post_tag'; });
+  }
 	
+
+  public function get_categories()
+  {
+    return \_::filter($this->taxonomies, function($t) { return $t->taxonomy == 'category'; });
+  }
   public function add_filters_to($filter_chain)
   {
       $filter_chain->filter(array('post_content', 'post_excerpt'),
@@ -65,6 +75,7 @@ class Post extends \WPSpokes\Framework\Model
 
 	public function validate()
 	{
+    $this->post_type = 'post';
 		$this->update_post_dates();
 		return parent::validate();
 	}
@@ -81,4 +92,14 @@ class Post extends \WPSpokes\Framework\Model
 	{
 		return $query->where('post_status', '=', $status);
 	}
+
+	public function scopeType($query, $type)
+	{
+		return $query->where('post_type', '=', $type);
+	}
+
+  public function newQuery($excludeDeleted = true)
+  {
+    return parent::newQuery($excludeDeleted)->where('post_type', '=', 'post');
+  }
 }
