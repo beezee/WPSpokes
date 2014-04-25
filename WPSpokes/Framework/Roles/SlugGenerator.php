@@ -14,10 +14,12 @@ class SlugGenerator extends \WPSpokes\Framework\Role
 	{
 		$count = 1;
 		$slug .= '-'.$count;
-		$slug_attribute = $this->slug_source_attribute;
+		$slug_attribute = $this->slug_target_attribute;
 		while(_::find($this->_matches, function($m) use ($slug, $slug_attribute){
 				return $slug == $m->$slug_attribute; }))
+    {
 			$slug = preg_replace('/[\d]+$/', $count++, $slug);
+    }
 		return $slug;
 	}
 
