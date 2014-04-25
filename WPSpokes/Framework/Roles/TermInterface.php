@@ -5,39 +5,26 @@ namespace WPSpokes\Framework\Roles;
 class TermInterface extends \WPSpokes\Framework\Role
 {
 
-	private $_name;
-
-	public function set_name($name)
+	public function creating()
 	{
-		$this->_name = $name;		
-	}
-
-	public function get_name()
-	{
-		return $this->_name
-			?: $this->owner->value('term.name');
-	}
-
-	public function get_slug()
-	{
-		return $this->term->slug;
-	}
-
-	public function created()
-	{
-		$t = new Term();
-		$t->name = $this->_name;
-		$t->save();
+		$t = new \WPSpokes\Framework\Models\Term();
+		$t->name = $this->owner->name;
+		if (!$t->save())
+    {
+      foreach($t->errors as $key => $errors)
+        $this->owner->add_error($key, $errors);
+      return false;
+    }
 		$this->owner->term()->associate($t);
-		$this->owner->save();
+    return true;
 	}
 
 	public function saved()
 	{
-		if (!$this->_name)
+		if (!$this->owner->name)
 			return true;
-		$this->owner->term->name = $this->_name;
-		$this->owner->term->save();
+		$this->owner->term->name = $this->owner->name;
+		return $this->owner->term->save();
 	}
 
 }
