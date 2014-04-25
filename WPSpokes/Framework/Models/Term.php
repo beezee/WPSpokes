@@ -4,6 +4,7 @@ namespace WPSpokes\Framework\Models;
 
 class Term extends \WPSpokes\Framework\Model
 {
+  protected $fillable = array('name', 'slug');
 	protected $primaryKey='term_id';	
 
 	public function __construct($attributes=array())
