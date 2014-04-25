@@ -75,17 +75,24 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		return $instance;
 	}
 
-    public function add_filters_to($filter_chain)
-    {
-        return;
-    }
+  public function toArray()
+  {
+    $r = parent::toArray();
+    if ($this->errors) $r['errors'] = $this->errors;
+    return $r;
+  }
 
-    public function filter()
-    {
-        $filter_chain = new \WPSpokes\Framework\FilterChain();
-        $this->add_filters_to($filter_chain);
-        $filter_chain->apply_to($this);
-    }
+  public function add_filters_to($filter_chain)
+  {
+      return;
+  }
+
+  public function filter()
+  {
+      $filter_chain = new \WPSpokes\Framework\FilterChain();
+      $this->add_filters_to($filter_chain);
+      $filter_chain->apply_to($this);
+  }
 
 	public function validate()
 	{
@@ -118,10 +125,18 @@ class Model extends \Illuminate\Database\Eloquent\Model
 		return $this->_errors;
 	}
 
-    public function get_pk()
-    {
-        return $this->{$this->primaryKey};
-    }
+  public function add_error($error_key, $error_value)
+  {
+    if (!is_array($error_value))
+      return $this->_errors[$error_key][] = $error_value;
+    foreach($error_value as $error_val)
+      $this->_errors[$error_key][] = $error_val;
+  }
+
+  public function get_pk()
+  {
+      return $this->{$this->primaryKey};
+  }
 
 	public function __get($name)
 	{
