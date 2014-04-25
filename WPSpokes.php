@@ -33,7 +33,7 @@ class WPSpokes extends \WPSpokes\Framework\Component
 	private static $_instance; 
 	private static $_is_being_accessed_through_factory = false;
 	private $_router; 
-	private $_autoloaders = array(); 
+	private $_namespaces = array(); 
 	private $_purifier;
 
 	public function __construct()
@@ -48,8 +48,8 @@ class WPSpokes extends \WPSpokes\Framework\Component
 	{
 		$this->_router = new Router();	
 		$this->load_database();
-		$this->register_vendor_autoloader('Axelarge');
-		$this->register_vendor_autoloader('Stringy');
+		$this->register_vendor_namespace('Axelarge');
+		$this->register_vendor_namespace('Stringy');
 		$this->set_up_validator();
 		add_action('plugins_loaded', array($this, 'trigger_loaded'));
 		add_action('template_include', array($this, 'dispatch_request'));
@@ -57,7 +57,7 @@ class WPSpokes extends \WPSpokes\Framework\Component
 
 	public function trigger_loaded()
 	{
-		do_action('wpmvc_loaded');
+		do_action('wpspokes_loaded');
 	}	
 
 	public static function is_being_accessed_through_factory()
@@ -74,20 +74,20 @@ class WPSpokes extends \WPSpokes\Framework\Component
 		return $instance;
 	}
 
-	private function register_vendor_autoloader($namespace)
+	private function register_vendor_namespace($namespace)
 	{
-		$this->register_autoloader($namespace, dirname(__FILE__).DS.'WPSpokes'.DS.'vendor');
+		$this->register_namespace($namespace, dirname(__FILE__).DS.'WPSpokes'.DS.'vendor');
 	}
 
-	public function register_autoloader($namespace, $path)
+	public function register_namespace($namespace, $path)
 	{
-		$this->_autoloaders[$namespace] = new SplClassLoader($namespace, $path);
-		$this->_autoloaders[$namespace]->register();
+		$this->_namespaces[$namespace] = new SplClassLoader($namespace, $path);
+		$this->_namespaces[$namespace]->register();
 	}
 
 	private function set_up_validator()
 	{
-		$this->register_vendor_autoloader('Valitron');
+		$this->register_vendor_namespace('Valitron');
 		\Valitron\Validator::langDir(dirname(__FILE__).DS.'WPSpokes'.DS.'vendor'.DS.'Valitron'.DS.'lang');
         \Valitron\Validator::addRule('exists', array(new \WPSpokes\Framework\Validators\Exists(), 'run'), 
                     'Must exist');
@@ -110,9 +110,9 @@ class WPSpokes extends \WPSpokes\Framework\Component
 		$capsule->bootEloquent();
 	}
 
-	public function get_autoloader($namespace)
+	public function get_namespace($namespace)
 	{
-		return $this->_autoloaders[$namespace];
+		return $this->_namespaces[$namespace];
 	}
 
 	public function get_router()
