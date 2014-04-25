@@ -9,4 +9,10 @@ class Category extends \WPSpokes\Framework\Models\Taxonomy
   {
     return parent::newQuery($excludeDeleted)->where('taxonomy', '=', 'category');
   }
+
+  public function on_saving()
+  {
+    $this->taxonomy = 'category';
+    return true;
+  }
 }

@@ -9,6 +9,10 @@ class Tag extends \WPSpokes\Framework\Models\Taxonomy
   {
     return parent::newQuery($excludeDeleted)->where('taxonomy', '=', 'post_tag');
   }
+
+  public function on_saving()
+  {
+    $this->taxonomy = 'post_tag';
+    return true;
+  }
 }
-
-

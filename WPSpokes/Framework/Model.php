@@ -204,6 +204,9 @@ class Model extends \Illuminate\Database\Eloquent\Model
 
 	public function __call($name,$parameters)
 	{
+    foreach(array('creating', 'created', 'saving', 'saved', 
+      'updating', 'updated', 'deleting', 'deleted', 'restoring', 'restored') as $event)
+        if ("on_$event" === $name) return true;
 		if($this->_roles!==null)
 			foreach($this->_roles as $object)
 				if($object->enabled && method_exists($object,$name))
