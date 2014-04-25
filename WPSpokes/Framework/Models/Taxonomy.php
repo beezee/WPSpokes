@@ -4,8 +4,32 @@ namespace WPSpokes\Framework\Models;
 
 class Taxonomy extends \WPSpokes\Framework\Model
 {
+  protected $guarded = array('count');
 	protected $primaryKey='term_taxonomy_id';
 	protected $table_inheritance_attribute = 'taxonomy';
+	private $_name;
+
+	public function setNameAttribute($name)
+	{
+		$this->_name = $name;		
+	}
+
+	public function get_name()
+	{
+		return $this->_name
+			?: $this->value('term.name');
+	}
+
+  public function setSlugAttribute($slug)
+  {
+    return;
+  }
+
+	public function get_slug()
+	{
+		return $this->value('term.slug');
+	}
+
 
 	public static $classes_inheriting_from_table 
 		= array('\WPSpokes\Framework\Models\Tag' => 'post_tag', 
