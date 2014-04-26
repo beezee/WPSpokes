@@ -5,6 +5,8 @@ namespace WPSpokes\Framework\Models;
 class User extends \WPSpokes\Framework\Model
 {
 
+  protected $hidden = array('user_pass');
+  protected $guarded = array('user_pass');
   protected $primaryKey = 'ID';
   protected $table = 'wp_users';
 

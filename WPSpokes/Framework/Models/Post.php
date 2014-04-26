@@ -4,7 +4,8 @@ namespace WPSpokes\Framework\Models;
 
 class Post extends \WPSpokes\Framework\Model
 {
-  protected $guarded = array('post_date');
+  protected $hidden = array('post_password');
+  protected $guarded = array('post_date', 'post_password');
 	protected $primaryKey = 'ID';
 
 	public function __construct($attributes=array())
