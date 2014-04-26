@@ -5,6 +5,7 @@ namespace WPSpokes\Framework\Models;
 class Taxonomy extends \WPSpokes\Framework\Model
 {
   protected $guarded = array('count');
+  protected $hidden = array('term');
 	protected $primaryKey='term_taxonomy_id';
 	protected $table_inheritance_attribute = 'taxonomy';
 	private $_name;
