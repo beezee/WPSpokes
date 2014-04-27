@@ -48,7 +48,6 @@ class WPSpokes extends \WPSpokes\Framework\Component
 	{
 		$this->_router = new Router();	
 		$this->load_database();
-		$this->register_vendor_namespace('Axelarge');
 		$this->register_vendor_namespace('Stringy');
 		$this->set_up_validator();
 		add_action('plugins_loaded', array($this, 'trigger_loaded'));

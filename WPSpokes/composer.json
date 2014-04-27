@@ -1,5 +1,6 @@
 {
     "require": {
         "illuminate/database": "*",
+        "anahkiasen/former": "dev-master"
     }
 }
